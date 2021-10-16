@@ -1,4 +1,7 @@
+import datetime
+
 from flask import Flask, url_for, request, json, Response, jsonify
+
 app = Flask(__name__)
 
 
@@ -16,6 +19,7 @@ def api_articles():
 def api_article(articleid):
     return 'You are reading ' + articleid
 
+
 @app.route('/hello')
 def api_hello():
     if 'name' in request.args:
@@ -24,7 +28,7 @@ def api_hello():
         return 'Hello guest.'
 
 
-@app.route('/echo', methods = ['GET','POST','PATCH','PUT','DELETE'])
+@app.route('/echo', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
 def api_echo():
     if request.method == 'GET':
         return "ECHO: GET\n"
@@ -38,9 +42,8 @@ def api_echo():
         return "ECHO: DELETE\n"
 
 
-@app.route('/messages', methods = ['POST'])
+@app.route('/messages', methods=['POST'])
 def api_message():
-
     if request.headers['Content-type'] == 'text/plain':
         return "Text Message: " + request.data
 
@@ -58,14 +61,38 @@ def api_message():
 
 @app.route('/hellohello', methods=['GET'])
 def api_hellohelo():
-    data={
-        'hello' : 'world',
-        'number' : 3
+    data = {
+        'hello': 'world',
+        'number': 3,
+        'author': 'Reindorius Sapientiam',
+        'data': datetime.datetime.now()
     }
 
     resp = jsonify(data)
     resp.headers['Link'] = 'http://luisrei.com'
     resp.status_code = 200
+
+    return resp
+
+
+@app.route('/users/<userid>', methods=['GET'])
+def api_users(userid):
+    users = {'1': 'john', '2': 'steve', '3': 'bill'}
+
+    if userid in users:
+        return jsonify({userid: users[userid]})
+    else:
+        return not_found()
+
+
+@app.errorhandler(404)
+def not_found(error=None):
+    message = {
+        'status': 404,
+        'message': 'Not Found: ' + request.url
+    }
+    resp = jsonify(message)
+    resp.status_code = 404
 
     return resp
 
