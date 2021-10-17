@@ -1,8 +1,14 @@
 import datetime
 
 from flask import Flask, url_for, request, json, Response, jsonify
+import authentication as auth
+import logging, os
 
 app = Flask(__name__)
+
+file_handler = logging.FileHandler(os.path.dirname(os.path.abspath(__file__)) + '/Logs/app.log')
+app.logger.addHandler(file_handler)
+app.logger.setLevel(logging.INFO)
 
 
 @app.route('/')
@@ -97,5 +103,20 @@ def not_found(error=None):
     return resp
 
 
+@app.route('/secrets')
+@auth.requires_auth
+def api_secret_hello():
+    return "You are accessing the top secrets!!!"
+
+
+@app.route('/log_hello')
+def api_log_hello():
+    app.logger.info('informing | ' + datetime.datetime.now().__str__())
+    app.logger.warning('warming | ' + datetime.datetime.now().__str__())
+    app.logger.error('error!!! | ' + datetime.datetime.now().__str__())
+
+    return "check your logs\n"
+
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
